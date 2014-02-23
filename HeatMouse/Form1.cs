@@ -34,19 +34,8 @@ namespace HeatMouse
         //int r = 20;
         private void mouseKeyEventProvider1_MouseClick(object sender, MouseEventArgs e)
         {
-            //MessageBox.Show(e.X.ToString() + " " + e.Y.ToString());
-            //X.Add(e.X);
-            //Y.Add(e.Y);
-            //for (int i = e.X-r; i <= (e.X+r); i++)
-            //{
-            //    for (int k = e.Y-r; k < (e.Y+r); k++)
-            //    {
-            //        if (i>0 && k>0 && i< bredde && k <højde && Math.Sqrt(Math.Pow(e.X-i,2)+Math.Pow(e.Y-k,2))<=r)
-            //        {
-            //            XY[i, k]++;
-            //        }
-            //    }
-            //}
+            //Try to increase the heatmap factor for the mouse position
+            //An exception will be thrown if the mouse is on a different screen than the primary
             try
             {
                 XY[e.X, e.Y]++;
@@ -55,8 +44,6 @@ namespace HeatMouse
             {
             }
         }
-        //List<int> X = new List<int>();
-        //List<int> Y = new List<int>();
         private void button1_Click(object sender, EventArgs e)
         {
             mouseKeyEventProvider1.Enabled = true;
@@ -70,6 +57,14 @@ namespace HeatMouse
             label1.Text = "Status: Tracker kører ikke";
             pictureBox2.BackColor = Color.Red;
         }
+
+        /// <summary>
+        /// The function which set the color of the pixel in the heatmap
+        /// </summary>
+        /// <param name="styrke">The value to map a color to</param>
+        /// <param name="max">The maximum value to scale to</param>
+        /// <param name="offset">The offset off the color (higher = redder)</param>
+        /// <returns></returns>
         public Color getColor(double styrke,double max,double offset)
         {
             Color res = new Color();
@@ -77,7 +72,6 @@ namespace HeatMouse
             styrke += offset;
             if (styrke > 0.5 * max)
             {
-                //int val = 254 - (((styrke-(max/2)) * 254) / (1+max / 2));
                 int val = 254-Remap(styrke, (0.5 * max), max, 0, 254);
                 res = Color.FromArgb(254, val, 0);
             }
@@ -94,6 +88,7 @@ namespace HeatMouse
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            //Gets the screen width and height and initiates the array
             try
             {
                 var screen = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
@@ -113,6 +108,12 @@ namespace HeatMouse
                 MessageBox.Show("Hey dude! skriv lige hvad den siger her:" + System.Environment.NewLine + k.Message + System.Environment.NewLine + k.InnerException);
             }
         }
+
+        /// <summary>
+        /// Begins the drawing of the heatmap from the current values
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void draw_Click(object sender, EventArgs e)
         {
             rad.Enabled = false;
@@ -132,6 +133,13 @@ namespace HeatMouse
         {
             return (int)(((value - from1) * (to2 - from2)) / (to1 - from1) + from2);
         }
+        /// <summary>
+        /// Creates and array of the screen clicks with the correct factors for each pixel,
+        /// depending on the defined radius.
+        /// </summary>
+        /// <param name="ind">The array with all the clicks</param>
+        /// <param name="radius">The radius each click will get</param>
+        /// <returns></returns>
         public int[,] createData(int[,] ind, int radius)
         {
             int[,] temp = new int[ind.GetLength(0),ind.GetLength(1)];
@@ -157,6 +165,12 @@ namespace HeatMouse
             }
             return temp;
         }
+        /// <summary>
+        /// The background worker which draws the bitmap, without freezing the GUI thread.
+        /// Also updates the progress bar.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void imageDrawer_DoWork(object sender, DoWorkEventArgs e)
         {
             drawParams plotData = e.Argument as drawParams;
@@ -203,7 +217,11 @@ namespace HeatMouse
             rad.Enabled = true;
             offset.Enabled = true;
         }
-
+        /// <summary>
+        /// Resets the click factors in the array
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void reset_Click(object sender, EventArgs e)
         {
             for (int i = 0; i < bredde; i++)
@@ -229,7 +247,11 @@ namespace HeatMouse
                 pictureBox1.Image.Save(saveFileDialog1.FileName);
             }
         }
-
+        /// <summary>
+        /// Initiates an array full of random values, for debugging the heatmap
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button1_Click_1(object sender, EventArgs e)
         {
             Random rand = new Random(System.DateTime.Now.Second);
@@ -410,6 +432,12 @@ namespace ExtensionMethods
 {
     public static class MyExtensions
     {
+        /// <summary>
+        /// Extends the integer array with the possibility to fill the array with a certain integer.
+        /// </summary>
+        /// <param name="datArray"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public static int[,] fill(this int[,] datArray, int value)
         {
             int[,] temp = datArray;
