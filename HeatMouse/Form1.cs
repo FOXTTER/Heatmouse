@@ -19,6 +19,9 @@ namespace HeatMouse
         {
             InitializeComponent();
         }
+        /// <summary>
+        /// Class to contain the parameter used by the background worker to draw the heatmap
+        /// </summary>
         public class drawParams {
             public int[,] rawData { get;set; }
             public Bitmap container { get; set; }
@@ -69,6 +72,7 @@ namespace HeatMouse
         {
             Color res = new Color();
             max += offset;
+            
             styrke += offset;
             if (styrke > 0.5 * max)
             {
@@ -84,7 +88,6 @@ namespace HeatMouse
             //res = Color.Red;
             return res;
         }
-        Series series = new Series();
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -103,9 +106,9 @@ namespace HeatMouse
                     }
                 }
             }
-            catch (Exception k)
+            catch (Exception)
             {
-                MessageBox.Show("Hey dude! skriv lige hvad den siger her:" + System.Environment.NewLine + k.Message + System.Environment.NewLine + k.InnerException);
+                
             }
         }
 
